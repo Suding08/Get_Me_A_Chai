@@ -4,13 +4,17 @@ import { useSession, signIn, signOut } from "next-auth/react"
 import { useRouter } from 'next/navigation'
 
 
-function Login() {
+const Login = () => {
   const { data: session } = useSession()
-  document.title = "Login - Get Me A Chai"
-  if (session) {
-    const router = useRouter()
-    router.push('/dashboard')
-  }
+  const router = useRouter()
+
+  useEffect(() => {
+    document.title = "Login - Get Me A Chai" 
+    console.log(session)
+    if (session) {
+      router.push('/dashboard')
+    }
+  }, [])
 
   return (
     <div className='text-white container mx-auto py-14'>
