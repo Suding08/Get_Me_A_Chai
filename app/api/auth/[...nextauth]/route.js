@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import User from "@/models/User";
 import Payment from "@/models/Payment";
 import connectDB from "@/db/connectDb";
+import GoogleProvider from "next-auth/providers/google";
 
 
 export const authOptions = NextAuth({
@@ -22,6 +23,10 @@ export const authOptions = NextAuth({
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,    
     }),
+    GoogleProvider({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      })
     // ...add more providers here
   ],
 
@@ -46,6 +51,20 @@ export const authOptions = NextAuth({
         }
         return true
       }
+       if (account.provider == "google") {
+        const currentUser = await User.findOne({email: user.email})
+
+        if(!currentUser){
+          const newUser = await User.create({
+          email: user.email,
+            username: user.email.split('@')[0], 
+            name: user.name     
+          })
+        }
+        return profile.email_verified && profile.email.endsWith("@gmail.com")
+      }
+      return true // Do different verification for other providers that don't have `email_verified`
+    
     },
     async session({ session, user, token }) {
       const dbUser = await User.findOne({ email: session.user.email })
